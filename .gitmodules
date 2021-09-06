@@ -1,3 +1,6 @@
 [submodule "yolov4"]
 	path = yolov4
 	url = https://github.com/Tianxiaomo/pytorch-YOLOv4
+[submodule "sort"]
+	path = sort
+	url = https://github.com/abewley/sort
