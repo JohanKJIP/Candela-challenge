@@ -1,5 +1,11 @@
+import torch
+import random
+import colorsys
 import numpy as np
 import cv2
+
+def _true_divide(dividend, divisor):
+    return torch.true_divide(dividend, divisor)
 
 def load_classes(path):
     """
@@ -62,6 +68,41 @@ def nms_cpu(boxes, confs, nms_thresh=0.5, min_mode=False):
         order = order[inds + 1]
 
     return np.array(keep)
+
+def bbox_iou(box1, box2, x1y1x2y2=True):
+    if x1y1x2y2:
+        mx = min(box1[0], box2[0])
+        Mx = max(box1[2], box2[2])
+        my = min(box1[1], box2[1])
+        My = max(box1[3], box2[3])
+        w1 = box1[2] - box1[0]
+        h1 = box1[3] - box1[1]
+        w2 = box2[2] - box2[0]
+        h2 = box2[3] - box2[1]
+    else:
+        w1 = box1[2]
+        h1 = box1[3]
+        w2 = box2[2]
+        h2 = box2[3]
+
+        mx = min(box1[0], box2[0])
+        Mx = max(box1[0] + w1, box2[0] + w2)
+        my = min(box1[1], box2[1])
+        My = max(box1[1] + h1, box2[1] + h2)
+    uw = Mx - mx
+    uh = My - my
+    cw = w1 + w2 - uw
+    ch = h1 + h2 - uh
+    carea = 0
+    if cw <= 0 or ch <= 0:
+        return 0.0
+
+    area1 = w1 * h1
+    area2 = w2 * h2
+    carea = cw * ch
+    uarea = area1 + area2 - carea
+    return carea / uarea
+
 
 def post_processing(conf_thresh, nms_thresh, output):
     """ Perform post processing on a batch
@@ -152,7 +193,7 @@ def rescale_bbs(img, bbs):
         box[3] = int(box[3] * height)
     return bbs
 
-def plot_boxes_cv2(img, boxes, savename=None, class_names=None):
+def plot_boxes_cv2(img, boxes, color_list, savename=None, class_names=None):
     """ Plot boxes onto provided image
         @param img:         Image to plot boxes on
         @param boxes:       Boxes to be drawn
@@ -164,7 +205,7 @@ def plot_boxes_cv2(img, boxes, savename=None, class_names=None):
     """
     img = np.copy(img)
 
-    for box in boxes:
+    for box_id, box in enumerate(boxes):
         if len(box) >= 7 and class_names:
             x1 = box[0]
             y1 = box[1] 
@@ -172,21 +213,24 @@ def plot_boxes_cv2(img, boxes, savename=None, class_names=None):
             y2 = box[3]
             
             cls_id = box[6]
+            area = (x2-x1) * (y2-y1)
 
-            if cls_id == 8:
+            # Arbitary area number to remove self detection
+            if cls_id == 8 and area <= 100000:
                 # BGR color codes
-                rgb = (255, 0, 0)
+                rgb = color_list[box_id]
 
                 img = cv2.putText(
                     img,
                     class_names[cls_id],
-                    (x1, y1),
+                    (x1, y1-6),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.5,
                     rgb,
                     1,
+                    cv2.LINE_AA,
                 )
-                img = cv2.rectangle(img, (x1, y1), (x2, y2), rgb, 1)
+                img = cv2.rectangle(img, (x1, y1), (x2, y2), rgb, 2)
     if savename:
         print("save plot results to {}".format(savename))
         cv2.imwrite(savename, img)
