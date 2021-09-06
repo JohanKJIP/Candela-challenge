@@ -21,6 +21,9 @@ class BoatDetector:
         self.tracker = BoundingBoxTracker()
 
     def detect(self, file):
+        """ Detect boats in video
+            @param file: Path to video
+        """
         cap = cv2.VideoCapture(file)
         if (cap.isOpened() == False):
             print("Error opening video stream or file: {0}".format(file))

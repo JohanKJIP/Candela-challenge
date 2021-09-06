@@ -70,6 +70,7 @@ def nms_cpu(boxes, confs, nms_thresh=0.5, min_mode=False):
     return np.array(keep)
 
 def bbox_iou(box1, box2, x1y1x2y2=True):
+    """ Method to calculate intersection over union of two bbs. """
     if x1y1x2y2:
         mx = min(box1[0], box2[0])
         Mx = max(box1[2], box2[2])
@@ -179,8 +180,8 @@ def post_processing(conf_thresh, nms_thresh, output):
 
 def rescale_bbs(img, bbs):
     """ Rescale bounding boxes to image coordinates
-        @param img:          Original image 
-        @param bbs:          Bounding boxes to rescale
+        @param img:     Original image 
+        @param bbs:     Bounding boxes to rescale
         @return bbs
             - bbs:  List of rescaled bounding boxes
     """

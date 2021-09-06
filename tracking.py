@@ -8,12 +8,19 @@ import colorsys
 
 class BoundingBoxTracker:
 
-    def __init__(self):
+    def __init__(self, min_iou=0.3):
         self.tracking_list = []
         self.color_list = []
-        self.min_iou = 0.3
+        self.min_iou = min_iou
 
     def track(self, detection_list):
+        """ Track bounding boxes between frames.
+            @param detection_list: List of bounding boxes 
+        """
+        # No boxes to track
+        if (len(detection_list) == 0):
+            return
+
         # At the beginning we have no t-1
         if (len(detection_list) > 0 and len(self.tracking_list) == 0):
             self.tracking_list = np.copy(detection_list)
@@ -36,6 +43,7 @@ class BoundingBoxTracker:
         # Update the color lists for new and matched detections
         new_color_list = [(0,0,0)] * len(detection_list)
         for unmatched in unmatched_detections:
+            # Want light random colours
             h,s,l = random.random(), 0.5 + random.random()/2.0, 0.4 + random.random()/5.0
             new_color_list[unmatched] = [int(256*i) for i in colorsys.hls_to_rgb(h,l,s)]
         # Reuse colour for matches
@@ -46,6 +54,11 @@ class BoundingBoxTracker:
         self.tracking_list = np.copy(detection_list)
 
     def calculate_IOU_scores(self, detection_list):
+        """ Calculate iou matrix for trackers and detections
+            @param detection_list: List of bounding boxes 
+            @return iou_matrix_filtered
+                - iou_matrix_filtered:  Matrix of iou scores
+        """
         iou_matrix = np.zeros((len(detection_list), len(self.tracking_list)))
         for i, detection in enumerate(detection_list):
             for j, tracker in enumerate(self.tracking_list):
