@@ -194,7 +194,7 @@ def rescale_bbs(img, bbs):
         box[3] = int(box[3] * height)
     return bbs
 
-def plot_boxes_cv2(img, boxes, color_list, savename=None, class_names=None):
+def plot_boxes_cv2(img, trackers, boxes, colours, savename=None, class_names=None):
     """ Plot boxes onto provided image
         @param img:         Image to plot boxes on
         @param boxes:       Boxes to be drawn
@@ -207,24 +207,25 @@ def plot_boxes_cv2(img, boxes, color_list, savename=None, class_names=None):
     img = np.copy(img)
 
     n_boats = 0
-    for box_id, box in enumerate(boxes):
-        if len(box) >= 7 and class_names:
-            x1 = box[0]
-            y1 = box[1] 
-            x2 = box[2]
-            y2 = box[3]
-            
-            cls_id = box[6]
+    for tracker in trackers:
+        if class_names:
+            x1 = int(tracker[0])
+            y1 = int(tracker[1])
+            x2 = int(tracker[2])
+            y2 = int(tracker[3])
+
+            #box = boxes[int(tracker[4])-1]
+
             area = (x2-x1) * (y2-y1)
 
             # Arbitary area number to remove self detection
-            if cls_id == 8 and area <= 100000:
+            if area <= 100000:
                 # BGR color codes
-                rgb = color_list[box_id]
+                rgb = colours[int(tracker[4])%32]
 
                 img = cv2.putText(
                     img,
-                    class_names[cls_id],
+                    "boat",
                     (x1, y1-6),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.5,

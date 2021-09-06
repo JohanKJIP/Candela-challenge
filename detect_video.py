@@ -1,6 +1,7 @@
 from trt_detector import TrtDetector
 from tracking import BoundingBoxTracker
 from utils import *
+from sort.sort import *
 
 import os
 import argparse
@@ -18,7 +19,12 @@ class BoatDetector:
         self.trt_detector = TrtDetector('yolov4.trt', self.classes, 
                                     self.img_size, self.conf_thres, 
                                     self.nms_thres)
-        self.tracker = BoundingBoxTracker()
+        self.tracker = Sort() 
+
+        self.colours = []
+        for _ in range(32):
+            h,s,l = random.random(), 0.5 + random.random()/2.0, 0.4 + random.random()/5.0
+            self.colours.append([int(256*i) for i in colorsys.hls_to_rgb(h,l,s)])
 
     def detect(self, file):
         """ Detect boats in video
@@ -41,10 +47,13 @@ class BoatDetector:
             if ret == True:
                 start = time.time()
                 bbs = self.trt_detector.predict(img)
-                self.tracker.track(bbs)
                 bbs = rescale_bbs(img, bbs)
+                bbs_xy = np.asarray([bb[0:5] for bb in bbs if bb[6] == 8])
+                if len(bbs) == 0:
+                    bbs_xy = np.empty((0, 5))
+                trackers = self.tracker.update(bbs_xy)
 
-                img = plot_boxes_cv2(img, bbs, self.tracker.color_list, class_names=self.classes)
+                img = plot_boxes_cv2(img, trackers, bbs, self.colours, class_names=self.classes)
                 cv2.imshow('Video', img)
                 print("{0}ms".format((time.time() - start)*1000))
 
