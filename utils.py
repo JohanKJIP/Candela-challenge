@@ -206,6 +206,7 @@ def plot_boxes_cv2(img, boxes, color_list, savename=None, class_names=None):
     """
     img = np.copy(img)
 
+    n_boats = 0
     for box_id, box in enumerate(boxes):
         if len(box) >= 7 and class_names:
             x1 = box[0]
@@ -232,6 +233,19 @@ def plot_boxes_cv2(img, boxes, color_list, savename=None, class_names=None):
                     cv2.LINE_AA,
                 )
                 img = cv2.rectangle(img, (x1, y1), (x2, y2), rgb, 2)
+                n_boats += 1
+    # Display number of boxes
+    img = cv2.putText(
+        img,
+        'Number of boats: {0}'.format(n_boats),
+        (10, 25),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        1,
+        (180, 105, 255), # pink
+        1,
+        cv2.LINE_AA,
+    )
+
     if savename:
         print("save plot results to {}".format(savename))
         cv2.imwrite(savename, img)
