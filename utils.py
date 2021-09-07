@@ -218,23 +218,21 @@ def plot_boxes_cv2(img, trackers, boxes, colours, savename=None, class_names=Non
 
             area = (x2-x1) * (y2-y1)
 
-            # Arbitary area number to remove self detection
-            if area <= 150000:
-                # BGR color codes
-                rgb = colours[int(tracker[4])%32]
+            # BGR color codes
+            rgb = colours[int(tracker[4])%32]
 
-                img = cv2.putText(
-                    img,
-                    "boat",
-                    (x1, y1-6),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    rgb,
-                    1,
-                    cv2.LINE_AA,
-                )
-                img = cv2.rectangle(img, (x1, y1), (x2, y2), rgb, 2)
-                n_boats += 1
+            img = cv2.putText(
+                img,
+                "boat (id: {0})".format(tracker[4]),
+                (x1, y1-6),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                rgb,
+                1,
+                cv2.LINE_AA,
+            )
+            img = cv2.rectangle(img, (x1, y1), (x2, y2), rgb, 2)
+            n_boats += 1
     
     # Infographics box
     sub_img = img[10:60, 10:230]

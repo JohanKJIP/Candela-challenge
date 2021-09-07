@@ -26,10 +26,41 @@ class BoatDetector:
             h,s,l = random.random(), 0.5 + random.random()/2.0, 0.4 + random.random()/5.0
             self.colours.append([int(256*i) for i in colorsys.hls_to_rgb(h,l,s)])
 
-    def detect(self, file):
-        """ Detect boats in video
+    def remove_self_detections(self, bbs, img):
+        """ Remove self detections on the boat
+        @param bbs:         Bounding boxes to check
+        @param img:         Image to overlay debug
+        @return new_bbs, img
+            - new_bbs:      Filtered bbs
+            - img:          Image with exclusion region
+        """
+        x1_boat = 480
+        x2_boat = 760
+        y1_boat = 420
+        y2_boat = 720
+
+        new_bbs = []
+        for bb in bbs:
+            x_centre = (bb[0] + bb[2]) / 2
+            y_centre = (bb[1] + bb[3]) / 2
+            
+            if not (x_centre > x1_boat and x_centre < x2_boat
+                and y_centre > y1_boat and y_centre < y2_boat):
+                new_bbs.append(bb)
+        
+        # Overlay exlusion region
+        sub_img = img[x1_boat:x2_boat, y1_boat:y2_boat]
+        white_rect = np.ones(sub_img.shape, dtype=np.uint8) * 255
+        res = cv2.addWeighted(sub_img, 0.5, white_rect, 0.5, 1.0)
+        img[x1_boat:x2_boat, y1_boat:y2_boat] = res
+
+        return new_bbs, img
+    
+    def detect(self, options):
+        """ Detect boats in a video
             @param file: Path to video
         """
+        file = opt.video
         cap = cv2.VideoCapture(file)
         if (cap.isOpened() == False):
             print("Error opening video stream or file: {0}".format(file))
@@ -37,7 +68,7 @@ class BoatDetector:
         width = int(cap.get(3))
         height = int(cap.get(4))
         fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D')
-        file_name = file.split('.')[0]
+        file_name = file.split('.')[0].split('/')[1]
         fps = cap.get(cv2.CAP_PROP_FPS)
         out = cv2.VideoWriter('output/{0}.avi'.format(file_name), 
                               fourcc, fps, (width, height))
@@ -49,7 +80,11 @@ class BoatDetector:
                 bbs = self.trt_detector.predict(img)
                 bbs = rescale_bbs(img, bbs)
 
-                # Reshape to tracker input, only keep boat bbs
+                # Remove self detections on the boat
+                if opt.remove_self:
+                    bbs, img = self.remove_self_detections(bbs, img)
+
+                # Reshape to tracker input, only keep boat bbs (cls_id=8)
                 bbs_xy = np.asarray([bb[0:5] for bb in bbs if bb[6] == 8])
                 if len(bbs_xy) == 0:
                     bbs_xy = np.empty((0, 5))
@@ -70,9 +105,11 @@ class BoatDetector:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--video", type=str, default="test_video.avi", help="video file name")
+    parser.add_argument("--video", type=str, default="videos/test_video.avi", help="video file name")
+    parser.add_argument("--no-filter", dest='remove_self',  action='store_false', help="If remove self detections with exclusion region")
     opt = parser.parse_args()
+    print(opt)
     boats = BoatDetector()
-    boats.detect(opt.video)
+    boats.detect(opt)
 
 
