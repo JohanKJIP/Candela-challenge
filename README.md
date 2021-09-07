@@ -6,6 +6,9 @@ Using any machine learning platform and programming language of your choice:
     i) Write an algorithm to detect and count the different boats in realtime.
     ii) Save the video with a boundingbox for all the boats.
 
+## Results
+![gif](https://media4.giphy.com/media/NypcrXsdzoVixDaORR/giphy.gif?cid=790b76113d08d11479833bf6f668d26967836080335478e7&rid=giphy.gif&ct=g)
+
 ## Design choices
 The challenge is time-limited which affected a few of the design choices. In particular, I chose to work with frameworks I was already familiar with to reduce time spent on environment setup. Additionally, I chose the Python programming language because it allows for quick prototyping. 
 
