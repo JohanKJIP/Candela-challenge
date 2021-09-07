@@ -1,0 +1,5 @@
+pycuda==2020.1
+opencv-python>=3.4.2
+scipy==0.19.1
+numpy==1.18.2
+tensorrt==7.2.3.4
