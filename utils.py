@@ -219,7 +219,7 @@ def plot_boxes_cv2(img, trackers, boxes, colours, savename=None, class_names=Non
             area = (x2-x1) * (y2-y1)
 
             # Arbitary area number to remove self detection
-            if area <= 100000:
+            if area <= 150000:
                 # BGR color codes
                 rgb = colours[int(tracker[4])%32]
 
@@ -235,14 +235,21 @@ def plot_boxes_cv2(img, trackers, boxes, colours, savename=None, class_names=Non
                 )
                 img = cv2.rectangle(img, (x1, y1), (x2, y2), rgb, 2)
                 n_boats += 1
+    
+    # Infographics box
+    sub_img = img[10:60, 10:230]
+    white_rect = np.ones(sub_img.shape, dtype=np.uint8) * 255
+    res = cv2.addWeighted(sub_img, 0.5, white_rect, 0.5, 1.0)
+    img[10:60, 10:230] = res
+    
     # Display number of boxes
     img = cv2.putText(
         img,
         'Number of boats: {0}'.format(n_boats),
-        (10, 25),
+        (20, 30),
         cv2.FONT_HERSHEY_SIMPLEX,
-        1,
-        (180, 105, 255), # pink
+        0.5,
+        (0, 0, 0), # pink
         1,
         cv2.LINE_AA,
     )
@@ -250,4 +257,25 @@ def plot_boxes_cv2(img, trackers, boxes, colours, savename=None, class_names=Non
     if savename:
         print("save plot results to {}".format(savename))
         cv2.imwrite(savename, img)
+    return img
+
+def plot_fps(img, seconds):
+    """ Plot frame time onto provided image
+        @param img:         Image to plot boxes on
+        @param seconds:     Seconds to compute
+        @return img
+            - img:  Image with frame time
+    """
+    print("{0}ms".format(seconds*1000))
+    img = cv2.putText(
+        img,
+        'Frame time: {0}ms'.format(round(seconds*1000,2)),
+        (20, 50),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        0.5,
+        (0, 0, 0), # pink
+        1,
+        cv2.LINE_AA,
+    )
+
     return img

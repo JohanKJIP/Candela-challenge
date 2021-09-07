@@ -48,19 +48,24 @@ class BoatDetector:
                 start = time.time()
                 bbs = self.trt_detector.predict(img)
                 bbs = rescale_bbs(img, bbs)
+
+                # Reshape to tracker input, only keep boat bbs
                 bbs_xy = np.asarray([bb[0:5] for bb in bbs if bb[6] == 8])
-                if len(bbs) == 0:
+                if len(bbs_xy) == 0:
                     bbs_xy = np.empty((0, 5))
                 trackers = self.tracker.update(bbs_xy)
 
                 img = plot_boxes_cv2(img, trackers, bbs, self.colours, class_names=self.classes)
+                img = plot_fps(img, time.time() - start)
+                
                 cv2.imshow('Video', img)
-                print("{0}ms".format((time.time() - start)*1000))
+                out.write(img)
 
-                if cv2.waitKey(25) & 0xFF == ord('q'):
-                    break
+            if cv2.waitKey(25) & 0xFF == ord('q'):
+                break
 
         cap.release()
+        out.release()
         cv2.destroyAllWindows()
 
 if __name__ == "__main__":
