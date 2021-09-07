@@ -1,11 +1,8 @@
-import torch
 import random
 import colorsys
 import numpy as np
 import cv2
 
-def _true_divide(dividend, divisor):
-    return torch.true_divide(dividend, divisor)
 
 def load_classes(path):
     """
