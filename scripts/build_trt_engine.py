@@ -12,12 +12,13 @@ import tensorrt as trt
 
 def build_engine(config, calibrator=None):
     """ Build TensorRT engine from path and save to specified file
-        NVIDIA guide: 
+        NVIDIA guide:
             - https://docs.nvidia.com/deeplearning/tensorrt/developer-guide/index.html#build_engine_python
         @param onnx_file_path:  Path to ONNX weight file
         @param trt_engine_path: Path to serialised TensorRT save location
     """
-    # Logger to capture errors, warnings, and other information during the build and inference phases
+    # Logger to capture errors, warnings,
+    # and other information during the build and inference phases
     TRT_LOGGER = trt.Logger()
     # initialize TensorRT engine and parse ONNX model
     network_creation_flag = 1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
@@ -65,7 +66,7 @@ def build_engine(config, calibrator=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Build a TensorRT engine from " + "ONNX weights and save to file"
+        description="Build a TensorRT engine from ONNX weights and save to file"
     )
     parser.add_argument("onnx_file_path", type=str, help="path to the onnx weight file")
     parser.add_argument(
