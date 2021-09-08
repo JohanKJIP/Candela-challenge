@@ -87,7 +87,7 @@ class TrtDetector(object):
         return inputs, outputs, bindings, stream
 
     def do_inference(self, bindings, inputs, outputs, stream):
-        """ Detect cones on the GPU """
+        """ Do inferece on the GPU """
         # Transfer input data to the GPU
         [cuda.memcpy_htod_async(inp.device, inp.host, stream) for inp in inputs]
         # Run inference
