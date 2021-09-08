@@ -61,7 +61,7 @@ class TrtDetector(object):
         """ Allocate necessary buffers for inference on the GPU
             @param batch_size: Size of the batches
             @return bounding_boxes
-                - inputs: buffer for inputs  
+                - inputs: buffer for inputs
                 - outputs: buffer for outputs
                 - bindings: device bindings
                 - stream: GPU stream, sequence of operations
@@ -116,26 +116,27 @@ class TrtDetector(object):
             bindings=bindings, inputs=inputs, outputs=outputs, stream=stream
         )
         # Post process
-        # (42588,) -> (1, 10647, 1, 4) 
+        # (42588,) -> (1, 10647, 1, 4)
         #       - where the tuple is (batch, num, 1, 4)
         #       - where (1, 4) is a bounding box [x, y, w, h]
         trt_outputs[0] = trt_outputs[0].reshape(1, -1, 1, 4)
-        # (42588,) -> (1, 10647, 4)    
+        # (42588,) -> (1, 10647, 4)
         #       - where the tuple is (batch, num, num_classes)
         trt_outputs[1] = trt_outputs[1].reshape(1, -1, self.number_classes)
 
         batch_bounding_boxes = post_processing(self.conf_thresh, self.nms_thresh, trt_outputs)
-        
+
         # batch_size 1 thus index 0 to retrieve the only batch
         return batch_bounding_boxes[0]
 
+
 if __name__ == "__main__":
     classes = load_classes('config/classes.names')
-    detector = TrtDetector('yolov4.trt', classes, 608, 0.45,0.45)
+    detector = TrtDetector('yolov4.trt', classes, 608, 0.45, 0.45)
     img = cv2.imread("yolov4/test.jpg")
     bbs = detector.predict(img)
     bbs = rescale_bbs(img, bbs)
     img = plot_boxes_cv2(img, bbs, class_names=classes)
     cv2.imshow("boxes", img)
-    cv2.waitKey(0) 
-    cv2.destroyAllWindows() 
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
