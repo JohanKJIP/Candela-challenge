@@ -6,6 +6,8 @@ Using any machine learning platform and programming language of your choice:
     i) Write an algorithm to detect and count the different boats in realtime.
     ii) Save the video with a boundingbox for all the boats.
 
+In the solution, please explain your design choices, challenges, and what would be the future work of your implementation.
+
 ## Design choices
 The challenge was time-limited which affected a few of the design choices. In particular, I chose to work with frameworks I was familiar with to reduce time spent on environment setup. Additionally, I chose the Python programming language because it allows for quick prototyping. 
 
@@ -26,13 +28,13 @@ The output of the YOLO network can be a bit noisy and it has no data association
 The mAP was measured on the COCO validation split containing boats. The model I trained (YOLOv4-416-1cls) performed worse than the pre-trained COCO model. The results are reasonable because the model I trained has a smaller input size and was not trained very long (and with sub-optimal batch size). The reason for choosing a smaller input size is described under challenges. However, the single class model is significantly faster due to the smaller size. 
 
 ## Challenges
-1. Self-detections: One challenge with the video is the issue of the boat carrying the camera being detected and "counted" as a boat.
+1. **Self-detections**: One challenge with the video is the issue of the boat carrying the camera being detected and "counted" as a boat.
 
     **Solution**: At first, the issue was solved by removing bounding boxes that have a very large pixel area. This removes the self-detection because "our" boat covers a large portion of the screen. This approach limits the programs ability to detect boats that are large in frame, e.g. very close to us or just very large. For other videos, it severely limits the programs ability to detect large boats. 
 
     The second approach utilises an exclusion zone placed where "our" boat is located in the frame (shown as a white transparent square in the bounding box video). Any bounding box with a centre inside the exclusion zone is removed. With the flag `--no-filter` the exclusion zone can be removed.
 
-2. CUDA out of memory: Training the YOLO neural network requires quite a lot of VRAM. I started training with a large image size 608x608 and a large batch size but ran out of VRAM.
+2. **CUDA out of memory**: Training the YOLO neural network requires quite a lot of VRAM. I started training with a large image size 608x608 and a large batch size but ran out of VRAM.
 
     **Solution**: To solve this, I I tried reducing the batch size in hopes I could still use the larger 608x608 image size. However, that was not possible so I had to use 416x416 instead. As a result, the comparison between the YOLOv4-608 COCO 80 class model is not quite fair for the YOLOv4-416 single class (boat) model. Normally, I would use google cloud for access to GPUs with more VRAM but my credits just ran ut.  
 
