@@ -1,4 +1,4 @@
-# Candela speedboat challenge
+# Detecting boats in videos
 
 ## Task
 Using any machine learning platform and programming language of your choice:
@@ -36,7 +36,7 @@ The mAP was measured on the COCO validation split containing boats. The model I 
 
 2. **CUDA out of memory**: Training the YOLO neural network requires quite a lot of VRAM. I started training with a large image size 608x608 and a large batch size but ran out of VRAM.
 
-    **Solution**: To solve this, I I tried reducing the batch size in hopes I could still use the larger 608x608 image size. However, that was not possible so I had to use 416x416 instead. As a result, the comparison between the YOLOv4-608 COCO 80 class model is not quite fair for the YOLOv4-416 single class (boat) model. Normally, I would use google cloud for access to GPUs with more VRAM but my credits just ran ut.  
+    **Solution**: To solve this, I I tried reducing the batch size in hopes I could still use the larger 608x608 image size. Unfortunately, that was not possible so I had to use 416x416 instead. As a result, the comparison between the YOLOv4-608 COCO 80 class model is not quite fair for the YOLOv4-416 single class (boat) model. Normally, I would use google cloud for access to GPUs with more VRAM but my credits just ran ut.  
 
 ## Future work
 There are things that could be improved and further worked on. For example:
@@ -48,6 +48,9 @@ There are things that could be improved and further worked on. For example:
 3. **Training YOLOv4-608 (batch=64, subdivisions=16)**: I only have access to a GPU with 8GB of VRAM. That meant I could only train YOLOv4-416 (batch=4, subdivisions=1) without encountering CUDA out of memory. [Alexey](https://github.com/AlexeyAB/darknet/wiki/YOLOv4-model-zoo) recommends 16GB to train a full YOLOv4 network with batch size=64 and subdivisions=16. 
 
 4. **Multi-class for different types of boats**: It could potentially be useful to know what type of boat we have detected since a sailboat will behave differently from a cruise ship. Having this information could be useful for planning and navigation.
+
+5. **Attempt to detect navigation marks**: To navigate you need to see navigation marks around the boat. 
+
 
 ## Setup
 The following are instructions for running the code. 
