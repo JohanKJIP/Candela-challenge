@@ -1,7 +1,12 @@
-import random
+"""
+    Utilities for other classes.
+"""
+
 import colorsys
-import numpy as np
+import random
+
 import cv2
+import numpy as np
 
 
 def load_classes(path):
@@ -11,7 +16,8 @@ def load_classes(path):
     with open(path, 'r') as f:
         names = f.read().split("\n")
         # Filter removes empty strings (such as last line)
-        return list(filter(None, names))  
+        return list(filter(None, names))
+
 
 def pre_process(img, img_size):
     """ Perform pre processing on an image
@@ -29,6 +35,7 @@ def pre_process(img, img_size):
     img_in /= 255.0
     img_in = np.ascontiguousarray(img_in)
     return img_in
+
 
 def nms_cpu(boxes, confs, nms_thresh=0.5, min_mode=False):
     """ Perform non-maximum supression (NMS) """
@@ -65,41 +72,6 @@ def nms_cpu(boxes, confs, nms_thresh=0.5, min_mode=False):
         order = order[inds + 1]
 
     return np.array(keep)
-
-def bbox_iou(box1, box2, x1y1x2y2=True):
-    """ Method to calculate intersection over union of two bbs. """
-    if x1y1x2y2:
-        mx = min(box1[0], box2[0])
-        Mx = max(box1[2], box2[2])
-        my = min(box1[1], box2[1])
-        My = max(box1[3], box2[3])
-        w1 = box1[2] - box1[0]
-        h1 = box1[3] - box1[1]
-        w2 = box2[2] - box2[0]
-        h2 = box2[3] - box2[1]
-    else:
-        w1 = box1[2]
-        h1 = box1[3]
-        w2 = box2[2]
-        h2 = box2[3]
-
-        mx = min(box1[0], box2[0])
-        Mx = max(box1[0] + w1, box2[0] + w2)
-        my = min(box1[1], box2[1])
-        My = max(box1[1] + h1, box2[1] + h2)
-    uw = Mx - mx
-    uh = My - my
-    cw = w1 + w2 - uw
-    ch = h1 + h2 - uh
-    carea = 0
-    if cw <= 0 or ch <= 0:
-        return 0.0
-
-    area1 = w1 * h1
-    area2 = w2 * h2
-    carea = cw * ch
-    uarea = area1 + area2 - carea
-    return carea / uarea
 
 
 def post_processing(conf_thresh, nms_thresh, output):
@@ -175,9 +147,10 @@ def post_processing(conf_thresh, nms_thresh, output):
 
     return bboxes_batch
 
+
 def rescale_bbs(img, bbs):
     """ Rescale bounding boxes to image coordinates
-        @param img:     Original image 
+        @param img:     Original image
         @param bbs:     Bounding boxes to rescale
         @return bbs
             - bbs:  List of rescaled bounding boxes
@@ -190,6 +163,7 @@ def rescale_bbs(img, bbs):
         box[2] = int(box[2] * width)
         box[3] = int(box[3] * height)
     return bbs
+
 
 def plot_boxes_cv2(img, trackers, boxes, colours, savename=None, class_names=None):
     """ Plot boxes onto provided image
@@ -211,12 +185,8 @@ def plot_boxes_cv2(img, trackers, boxes, colours, savename=None, class_names=Non
             x2 = int(tracker[2])
             y2 = int(tracker[3])
 
-            #box = boxes[int(tracker[4])-1]
-
-            area = (x2-x1) * (y2-y1)
-
             # BGR color codes
-            rgb = colours[int(tracker[4])%32]
+            rgb = colours[int(tracker[4]) % 32]
 
             img = cv2.putText(
                 img,
@@ -230,13 +200,13 @@ def plot_boxes_cv2(img, trackers, boxes, colours, savename=None, class_names=Non
             )
             img = cv2.rectangle(img, (x1, y1), (x2, y2), rgb, 2)
             n_boats += 1
-    
+
     # Infographics box
     sub_img = img[10:60, 10:230]
     white_rect = np.ones(sub_img.shape, dtype=np.uint8) * 255
     res = cv2.addWeighted(sub_img, 0.5, white_rect, 0.5, 1.0)
     img[10:60, 10:230] = res
-    
+
     # Display number of boxes
     img = cv2.putText(
         img,
@@ -244,7 +214,7 @@ def plot_boxes_cv2(img, trackers, boxes, colours, savename=None, class_names=Non
         (20, 30),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.5,
-        (0, 0, 0), # pink
+        (0, 0, 0),
         1,
         cv2.LINE_AA,
     )
@@ -253,6 +223,7 @@ def plot_boxes_cv2(img, trackers, boxes, colours, savename=None, class_names=Non
         print("save plot results to {}".format(savename))
         cv2.imwrite(savename, img)
     return img
+
 
 def plot_fps(img, seconds):
     """ Plot frame time onto provided image
@@ -264,13 +235,13 @@ def plot_fps(img, seconds):
     print("{0}ms".format(seconds*1000))
     img = cv2.putText(
         img,
-        'Frame time: {0}ms'.format(round(seconds*1000,2)),
+        'Frame time: {0}ms'.format(round(seconds*1000, 2)),
         (20, 50),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.5,
-        (0, 0, 0), # pink
+        (0, 0, 0),
         1,
         cv2.LINE_AA,
     )
-
     return img
+    
