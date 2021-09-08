@@ -131,12 +131,12 @@ class TrtDetector(object):
 
 
 if __name__ == "__main__":
-    classes = load_classes('config/classes.names')
-    detector = TrtDetector('yolov4.trt', classes, 608, 0.45, 0.45)
+    classes = load_classes('config/boat.names')
+    detector = TrtDetector('single_cls.trt', classes, 416, 0.45, 0.45)
     img = cv2.imread("yolov4/test.jpg")
     bbs = detector.predict(img)
     bbs = rescale_bbs(img, bbs)
-    img = plot_boxes_cv2(img, bbs, class_names=classes)
+    img = plot_boxes_cv2(img, bbs, bbs, [(315,300,56)], class_names=classes)
     cv2.imshow("boxes", img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()

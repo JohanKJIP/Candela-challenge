@@ -7,7 +7,10 @@ Using any machine learning platform and programming language of your choice:
     ii) Save the video with a boundingbox for all the boats.
 
 ## Results
-
+|                  | mAP-50 | FPS |
+|------------------|--------|-----|
+| YOLOv4-608-80cls |    x   | 74  |
+| YOLOv4-416-1cls  |    x   | 161 |
 
 ## Design choices
 The challenge was time-limited which affected a few of the design choices. In particular, I chose to work with frameworks I was familiar with to reduce time spent on environment setup. Additionally, I chose the Python programming language because it allows for quick prototyping. 
@@ -18,6 +21,7 @@ Because it is a real-time task I chose to utilise [TensorRT](https://developer.n
 
 The output of the YOLO network can be a bit noisy and it has no object association between frames. From my time at KTHFS I was familiar with the idea of tracking bounding boxes with data association and Kalman filters. I did not have time to implement it for KTHFS but wanted to give it a try with this challenge. So, I started implementing data association between frames from scratch by comparing Intersection Over Union (IOU) between the bounding boxes from time t-1 and t. My next plan was to research Kalman Filters and how they could be used with my data association. However, as I was researching it, I stumbled across [SORT](https://github.com/abewley/sort) on Github. SORT is a real-time tracking algorithm that implements the data association I had worked on but it also takes care of the Kalman filters for each tracker. Due to the time constraints, I chose to abandon my implementation and integrate SORT instead. 
 
+**Bonus**: For the task of detecting boats, the model doesn't have to be able to detect objects such as giraffes, forks, bowls, etc. Therefore, I trained YOLOv4 to learn a single class, making it able to only detect boats and nothing else. This was achieved by downloading all of the training images from COCO containing boats and training a model with the instructions from the [PyTorch repository](https://github.com/Tianxiaomo/pytorch-YOLOv4).The model was only trained for 30 epochs (~2 hours) on an RTX 3070 and was initialised with pretrained weights. 
 
 ## Challenges
 1. Self detections: One challenge with the video is the issue of the boat carrying the camera being detected and "counted" as a boat.
@@ -28,7 +32,7 @@ The output of the YOLO network can be a bit noisy and it has no object associati
 
 2. CUDA out of memory: Training the YOLO neural network requires quite a lot of VRAM. I started training with a large image size 608x608 and a large batch size but ran out of VRAM.
 
-    **Solution**: I started by reducing the batch size in hopes I could still use the larger 608x608 image size. However, that was not possible so I had to use 416x416 instead. As a result, the comparison between the YOLOv4-608 COCO 80 class model is not quite fair for the YOLOv4-416 single boat class model. 
+    **Solution**: I started by reducing the batch size in hopes I could still use the larger 608x608 image size. However, that was not possible so I had to use 416x416 instead. As a result, the comparison between the YOLOv4-608 COCO 80 class model is not quite fair for the YOLOv4-416 single class (boat) model. 
 
 ## Future work
 
@@ -45,8 +49,8 @@ The following are instructions for running the code.
 
 ### Prerequisites
 - Have CUDA capable GPU
-- Install CUDA, cudaNN and TensorRT (has been tested with version 7.2.3)
-- Python 2 for running inference (might work with Python 3 but I am using v2 because that is what I had set up. For training with the yolov4 module you have to use Python 3)
+- Install CUDA, cudaNN and TensorRT (the project has been tested to work with version 7.2.3)
+- Python 2 running the code (might work with Python 3 but I am using v2 because that is what I had set up already)
 - Install inference requirements file: `python -m pip install -r requirements.txt`
 - Install requirements for the submodules `sort` and `yolov4`
 - Add `__init__.py` inside sort the directory
