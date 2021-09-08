@@ -6,7 +6,6 @@ import cv2
 import numpy as np
 import pycuda.autoinit
 import pycuda.driver as cuda
-import rospy
 import tensorrt as trt
 
 from utils import *
@@ -49,11 +48,9 @@ class TrtDetector(object):
         self.buffers = self.allocate_buffers(batch_size=1)
 
         self.context.set_binding_shape(0, (1, self.COLOUR_CHANNELS, img_size, img_size))
-        rospy.loginfo("[cone_detection_camera] TRT initialisation complete")
 
     def get_engine(self, engine_path):
         """ Load serialised engine from file """
-        rospy.loginfo("[cone_detection_camera] Reading engine from file {}".format(engine_path))
         with open(engine_path, "rb") as f, trt.Runtime(self.TRT_LOGGER) as runtime:
             return runtime.deserialize_cuda_engine(f.read())
 
