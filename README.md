@@ -13,7 +13,7 @@ The challenge was time-limited which affected a few of the design choices. In pa
 
 I chose to use YOLOv4-608 for the object detection task because it performs well for real-time tasks. In terms of mAP, YOLOv4-608 is #12 on the top list for [Real-Time Object detection on COCO](https://paperswithcode.com/sota/real-time-object-detection-on-coco). I am also already familiar with the implementation from my time working with KTH Formula Student (KTHFS) where we used YOLOv4-416. In particular, I based my code on [this](https://github.com/Tianxiaomo/pytorch-YOLOv4) PyTorch library. Luckily, the COCO dataset contains boats which meant that I could use pre-trained weights. I browsed the [DarkNet YOLOv4 model zoo](https://github.com/AlexeyAB/darknet/wiki/YOLOv4-model-zoo) and downloaded the config- and pre-trained weight files. 
 
-Detecting boats is a real-time task. Therefore, I chose to utilise [TensorRT](https://developer.nvidia.com/tensorrt) to speed up the inference time of the neural network. In my experience, it speeds up the inference time by 2-4x for YOLOv4. With TensorRT using FP16 precision, a frame takes around 13.7ms to process on my RTX 3070 which converts to ~74FPS (including tracking). 
+Detecting boats is a real-time task. Therefore, I utilised [TensorRT](https://developer.nvidia.com/tensorrt) to speed up the inference time of the neural network. In my experience, it speeds up the inference time by 2-4x for YOLOv4. With TensorRT using FP16 precision, a frame takes around 13.7ms to process on my RTX 3070 which converts to ~74FPS (including tracking). 
 
 The output of the YOLO network can be a bit noisy and it has no data association between frames. From my time at KTHFS I was familiar with the idea of tracking bounding boxes with data association and Kalman filters. I did not have time to implement it for KTHFS but wanted to give it a try with this challenge. So, I started implementing data association between frames from scratch by comparing Intersection Over Union (IOU) between the bounding boxes from time `t-1` and `t`. My next plan was to research Kalman Filters and how they could be used with my data association. However, as I was researching it, I stumbled across [SORT](https://github.com/abewley/sort) on Github. SORT is a real-time tracking algorithm that implements the data association I had worked on but it also takes care of the Kalman filters for each tracker. I chose to abandon my implementation and integrate SORT instead. 
 
@@ -45,11 +45,11 @@ There are things that could be improved and further worked on. For example:
 
 2. **More training data**: The COCO dataset has approximately 3000 images of boats. I think it could be complemented with a dataset containing images from the camera on the boat. This would give the model some representative image samples of what it would encounter in real-life. Additionally, I would like to try [this](https://www.kaggle.com/clorichel/boat-types-recognition/version/1) dataset.
 
-3. **Training YOLOv4-608 (batch=64, subdivisions=16)**: I only have access to a GPU with 8GB of VRAM. That meant I could only train YOLOv4-416 (batch=4, subdivisions=1) without encountering CUDA out of memory. [Alexey](https://github.com/AlexeyAB/darknet/wiki/YOLOv4-model-zoo) recommends 16GB to train a full YOLOv4 network with batch size=64 and subdivisions=16. 
+3. **Training YOLOv4-608 (batch=64, subdivisions=16)**: I only have access to a GPU with 8GB of VRAM. That meant I could only train YOLOv4-416 (batch=4, subdivisions=1) without encountering CUDA out of memory. [Alexey](https://github.com/AlexeyAB/darknet/wiki/YOLOv4-model-zoo) recommends 16GB to train a full YOLOv4 network with batch size=64 and subdivisions=16.  
 
 4. **Multi-class for different types of boats**: It could potentially be useful to know what type of boat we have detected since a sailboat will behave differently from a cruise ship. Having this information could be useful for planning and navigation.
 
-5. **Attempt to detect navigation marks**: To navigate you need to see navigation marks around the boat. 
+5. **Attempt to detect navigation marks**: To navigate you need to detect navigation marks around the boat. 
 
 
 ## Setup
