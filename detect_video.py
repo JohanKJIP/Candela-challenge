@@ -9,7 +9,6 @@ import time
 import cv2
 
 from sort.sort import *
-from tracking import BoundingBoxTracker
 from trt_detector import TrtDetector
 from utils import *
 
