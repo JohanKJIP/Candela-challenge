@@ -72,9 +72,8 @@ class BoatDetector:
         width = int(cap.get(3))
         height = int(cap.get(4))
         fourcc = cv2.VideoWriter_fourcc('X', 'V', 'I', 'D')
-        file_name = file.split('.')[0].split('/')[1]
         fps = cap.get(cv2.CAP_PROP_FPS)
-        out = cv2.VideoWriter('output/{0}.avi'.format(file_name),
+        out = cv2.VideoWriter('out.avi',
                               fourcc, fps, (width, height))
 
         while cap.isOpened():
